@@ -9,8 +9,6 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 
-console.log(process.env.MONGO_URI); 
-
 // importar config de bbdd
 const connectDB = require("../config/db_mongo");
 const sequelize = require("../config/db_pg");
