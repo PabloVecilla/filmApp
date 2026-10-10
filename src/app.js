@@ -8,6 +8,9 @@ const morgan = require("morgan");
 // importar helmet para
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
+
+console.log(process.env.MONGO_URI); 
+
 // importar config de bbdd
 const connectDB = require("../config/db_mongo");
 const sequelize = require("../config/db_pg");
@@ -17,8 +20,14 @@ const YAML = require("yamljs");
 const path = require("path");
 const openapiDocument = YAML.load(path.join(process.cwd(), "docs", "openapi.yaml"));
 
+// Import api rateLimiter
+const { apiLimiter } = require("./middlewares/rateLimit.middleware"); 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Mandatory for express-rate-limit to function properly  
+app.set('trust proxy', 1); 
 
 //--------------------------------------
 // DECLARACIONES DE USO EN NUESTRA APP:
@@ -66,16 +75,11 @@ app.use("/api", usersRoutes);
 app.use("/api", filmsRoutes);
 app.use("/", viewRoutes);
 
-// esto lo comentamos xq solo lo teniamos al principio para probar que funcionaba, ahora queremos que la primera ruta en la que se entra en la app sea home
-// app.get("/", (_req, res) => {
-//   res.json({ message: "funciona" });
-// });
-
-// Manejo de errores
+// errors
 // 404
 app.use((req, res) => {
   if (req.originalUrl.startsWith("/api")) { // si la ruta que da error es de /api (parte BE) devuelve 404 en formato json
-    return res.status(404).json({ message: "Ruta no encontrada" });
+    return res.status(404).json({ message: "Not found" });
   }
 
   return res.status(404).render("404"); // si la ruta que da error es de una vista devuelve 404 en formato html

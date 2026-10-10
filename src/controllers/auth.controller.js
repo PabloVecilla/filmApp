@@ -5,7 +5,7 @@ const { User } = require("../models");
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
 const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
@@ -25,8 +25,6 @@ const register = async (req, res) => {
       .json({ message: "Password must be at least 6 characters" });
   }
 
-  const safeRole = role === "admin" ? "admin" : "user";
-
   try {
     const existingUser = await User.findOne({
       where: { email: normalizedEmail },
@@ -42,7 +40,7 @@ const register = async (req, res) => {
       name,
       email: normalizedEmail,
       passwordHash,
-      role: safeRole,
+      role: "user",
     });
 
     return res.status(201).json({
@@ -94,7 +92,7 @@ const login = async (req, res) => {
 
     return res
       .status(200)
-      .json({ mensaje: "Login correcto", role: user.role, accessToken });
+      .json({ mensaje: "Logged in successfully", role: user.role, accessToken });
   } catch (error) {
     return res.status(500).json({ message: `Database error: ${error}` });
   }
@@ -103,7 +101,7 @@ const login = async (req, res) => {
 const logout = (req, res) => {
   res.clearCookie("accessToken");
   res.redirect("/home");
-  return res.status(200).json({ message: "Sesion cerrada" });
+  return res.status(200).json({ message: "Session closed" });
 };
 
 module.exports = { register, login, logout };

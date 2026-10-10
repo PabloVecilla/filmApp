@@ -3,7 +3,7 @@ const { User } = require("../models");
 // Obtener todos los usuarios (Admin)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll(); // Busca todos los usuarios en la base de datos
+    const users = await User.findAll({attributes: ["name", "email", "role"]}); // Busca todos los usuarios en la base de datos
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -14,9 +14,9 @@ const getAllUsers = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     // req.params.id recoge el id que viene en la URL ej: /api/user/1
-    const user = await User.findByPk(req.params.id); // Busca por Primary Key, equivale a SELECT * FROM users WHERE id = 1
+    const user = await User.findByPk(req.params.id, { attributes: ["name", "email", "role"] }); // Busca por Primary Key, equivale a SELECT * FROM users WHERE id = 1
     if (!user)
-      return res.status(404).json({ message: "Usuario no encontrado" }); // Si findByPk no encuentra nada devuelve null, entonces respondemos con 404
+      return res.status(404).json({ message: "User not found" }); // Si findByPk no encuentra nada devuelve null, entonces respondemos con 404
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,13 +29,13 @@ const updateUser = async (req, res) => {
     // Primero buscamos el usuario para comprobar que existe antes de editarlo
     const user = await User.findByPk(req.params.id); // Busca el usuario por id
     if (!user)
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ message: "User not found" });
 
     await user.update(req.body); // Actualiza solo los campos que vienen en el body
     // Devuelve el usuario con los datos ya actualizados
     res
       .status(200)
-      .json({ user: user, message: `Usuario ${user.name} editado.` });
+      .json({ user: user, message: `User ${user.name} edited.` });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -47,11 +47,11 @@ const deleteUser = async (req, res) => {
     // Primero buscamos el usuario para comprobar que existe antes de borrarlo
     const user = await User.findByPk(req.params.id); // Busca el usuario por id
     if (!user)
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ message: "User not found" });
     // Si no existe devuelve 404
     await user.destroy(); // Hace el DELETE FROM users WHERE id en SQL
     res.status(200).json({
-      message: `Usuario ${user.name} eliminado`,
+      message: `User ${user.name} eliminated`,
       user,
     }); // Confirmamos que el usuario se ha eliminado correctamente
   } catch (error) {
