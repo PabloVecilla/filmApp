@@ -1,25 +1,25 @@
 {
-  "name": "grupo2-proyecto-backend-film-app",
+  "name": "film-App",
   "version": "1.0.0",
-  "description": "Ejercicio grupo 2",
+  "description": "film app",
   "main": "index.js",
   "scripts": {
-    "start": "node --watch ./src/app.js",
+    "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docs": "node docs/generate-openapi.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BV-Works/grupo2-proyecto-backend-film-app.git"
+    "url": "git+https://github.com/PabloVecilla/filmApp.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/BV-Works/grupo2-proyecto-backend-film-app/issues"
+    "url": "https://github.com/PabloVecilla/filmApp/issues"
   },
-  "homepage": "https://github.com/BV-Works/grupo2-proyecto-backend-film-app#readme",
+  "homepage": "https://github.com/PabloVecilla/filmApp#readme",
   "dependencies": {
     "axios": "^1.15.1",
     "bcryptjs": "^3.0.3",
@@ -27,7 +27,8 @@
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
-    "helmet": "^8.1.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1",
     "morgan": "^1.10.1",
