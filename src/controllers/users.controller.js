@@ -27,15 +27,16 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     // Primero buscamos el usuario para comprobar que existe antes de editarlo
-    const user = await User.findByPk(req.params.id); // Busca el usuario por id
+    const user = await User.findByPk(req.params.id, {attributes: ["id", "name", "email", "role"]}); // Busca el usuario por id --> only secure fields
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    await user.update(req.body); // Actualiza solo los campos que vienen en el body
-    // Devuelve el usuario con los datos ya actualizados
+    const rol = String(req.body.rol) ?? user.rol; 
+
+    await user.update(rol);
     res
       .status(200)
-      .json({ user: user, message: `User ${user.name} edited.` });
+      .json({ user: user, message: `User ${user.name} rol edited.` });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -45,7 +46,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     // Primero buscamos el usuario para comprobar que existe antes de borrarlo
-    const user = await User.findByPk(req.params.id); // Busca el usuario por id
+    const user = await User.findByPk(req.params.id, {attributes: ["id", "name", "email", "role"]}); // Busca el usuario por id
     if (!user)
       return res.status(404).json({ message: "User not found" });
     // Si no existe devuelve 404

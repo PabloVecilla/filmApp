@@ -1,4 +1,4 @@
-const Films = require("../models/Films");
+const Films = require("../models/Film.model.js");
 const fetchMovies = require("../utils/fetch-movies.utils.js");
 const normalizeMovie = require("../utils/movie-normalizer.js");
 

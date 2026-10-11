@@ -101,7 +101,6 @@ const login = async (req, res) => {
 const logout = (req, res) => {
   res.clearCookie("accessToken");
   res.redirect("/home");
-  return res.status(200).json({ message: "Session closed" });
 };
 
 module.exports = { register, login, logout };
