@@ -1,11 +1,11 @@
-// IMPORTACIONES
-// importar libreria dotenv para manejar archivos .env
-require("dotenv").config();
+// IMPORT
+// importar libreria dotenv para manejar archivos .env depending on environment
+require("dotenv").config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env.test" });
 // importar servidor express (framework de node.js)
 const express = require("express");
 // importar morgan para console.log de las peticiones al servidor para facilitar el desarrollo y debugging
 const morgan = require("morgan");
-// importar helmet para
+// import helmet
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 
@@ -22,7 +22,6 @@ const openapiDocument = YAML.load(path.join(process.cwd(), "docs", "openapi.yaml
 const { apiLimiter } = require("./middlewares/rateLimit.middleware"); 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Mandatory for express-rate-limit to function properly  
 app.set('trust proxy', 1); 
@@ -117,20 +116,4 @@ process.on("uncaughtException", (err) => { // captura errores sin try/catch en c
   console.error("Uncaught Exception:", err);
 });
 
-// Start server and bbdds
-const startServer = async () => {
-  try {
-    await Promise.all([sequelize.authenticate(), connectDB()]); // encender bases de datos
-
-    console.log("Databases connected");
-
-    app.listen(PORT, () => {
-      console.log(`API listening at port: ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Startup error:", error);
-    process.exit(1);
-  }
-};
-
-startServer();
+module.exports = app; 
