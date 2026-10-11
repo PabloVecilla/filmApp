@@ -4,7 +4,8 @@
   "description": "film app",
   "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
+    "build": "npm ci && npm run db:migrate",
+    "start": "node src/server.js",
     "prestart": "npm run db:migrate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docs": "node docs/generate-openapi.js",

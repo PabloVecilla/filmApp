@@ -103,7 +103,7 @@ module.exports = {
           'DROP TYPE IF EXISTS "enum_users_role";', { transaction }
         ); 
         await queryInterface.sequelize.query(
-          'DROP TYPE IF EXISTS "favorites_user_movie_unique_idx";', { transaction }
+          'DROP TYPE IF EXISTS "enum_favorites_movie_source";', { transaction }
         ); 
 
         await transaction.commit(); 
