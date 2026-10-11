@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 
 // importar config de bbdd
 const connectDB = require("../config/db_mongo");
-const sequelize = require("../config/db_pg");
+const { sequelize } = require("../config/db_pg");
 //Swagger
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -53,6 +53,8 @@ app.use(express.json()); // para usar objetos en formaro json en las request
 app.use(express.urlencoded({ extended: false })); // permitir a express leer formularios html
 app.use(cookieParser()); // parsear las cookies que vienen en las cabezeras http: "It simplifies managing user sessions, authentication tokens, and preferences by converting raw request cookie headers into easily accessible JSON objects."
 
+app.use(apiLimiter); 
+
 // Configuracion del swagger para poder mostrar la ruta /docs con la documentacion de las apis/servicios/endpoints
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
@@ -72,6 +74,18 @@ app.use("/api", favoritesRoutes);
 app.use("/api", usersRoutes);
 app.use("/api", filmsRoutes);
 app.use("/", viewRoutes);
+
+// Dedicated for Infrastructure / Monitors
+app.get("/health", async (_req, res) => {
+  try {
+    // Sequelize DB ping
+    await sequelize.authenticate(); 
+    
+    res.status(200).json({ status: "UP", timestamp: new Date() });
+  } catch (error) {
+    res.status(503).json({ status: "DOWN", error: error.message });
+  }
+});
 
 // errors
 // 404
@@ -110,11 +124,8 @@ const startServer = async () => {
 
     console.log("Databases connected");
 
-    await sequelize.sync({ force: false });
-    console.log("Models synced");
-
     app.listen(PORT, () => {
-      console.log(`API listening at http://localhost:${PORT}`);
+      console.log(`API listening at port: ${PORT}`);
     });
   } catch (error) {
     console.error("Startup error:", error);

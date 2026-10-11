@@ -1,5 +1,5 @@
-const User = require("./User");
-const Favorite = require("./favorites.models");
+const User = require("./User.model");
+const Favorite = require("./Favorite.model");
 
 User.hasMany(Favorite, {
   foreignKey: "userId",

@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize"); 
-const sequelize = require("../../config/db_pg.js"); 
+const { sequelize } = require("../../config/db_pg.js"); 
 
 const Favorite = sequelize.define("favorite", {
     id: {
@@ -27,12 +27,13 @@ const Favorite = sequelize.define("favorite", {
     }, 
 },
 {
-    indexes: [
-        {
+    tableName: "favorites", 
+    timestamps: true, 
+    underscored: true, 
+    indexes: [{
             unique:true, 
             fields: ["userId", "movieSource", "movieSourceId"]  // joint indexes to ensure unicity
-        }
-    ]
+    } ]
 }); 
 
 module.exports = Favorite; 

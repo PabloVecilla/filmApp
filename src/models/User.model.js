@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/db_pg');
+const { sequelize } = require('../../config/db_pg');
 
 const User = sequelize.define('User', {
   name: {
@@ -20,7 +20,9 @@ const User = sequelize.define('User', {
     defaultValue: 'user'
   }
 }, {
-  tableName: 'users'  // fuerza que use la tabla existente del grupo
+  tableName: 'users',  // fuerza que use la tabla existente del grupo
+  timestamps: true,
+  underscored: true
 });
 
 module.exports = User;

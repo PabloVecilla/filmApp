@@ -1,5 +1,5 @@
 const { Favorite } = require("../models");   // changed requirements to delete User (not used)
-const Movie = require("../models/Films");
+const Movie = require("../models/Film.model");
 
 const { getMovieById } = require("../utils/omdb.helper"); 
 const normalizeMovie = require("../utils/movie-normalizer"); 
