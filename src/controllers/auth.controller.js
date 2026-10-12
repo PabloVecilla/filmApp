@@ -19,10 +19,14 @@ const register = async (req, res) => {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
-  if (password.length < 6) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 6 characters" });
+  const normalizedPassword = password.trim(); 
+
+  if (normalizedPassword.length < 6) return res.status(400).json({ message: "Password must be at least 6 characters" });
+
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,}$/;
+
+  if (!passwordRegex.test(normalizedPassword)) {
+    return res.status(400).json({ message: "Password must contain 1 number, 1 uppercase letter and 1 special character" });
   }
 
   try {
@@ -31,7 +35,7 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(409).json({ message: "Email already exists" });
+      return res.status(409).json({ message: "User already exists" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
