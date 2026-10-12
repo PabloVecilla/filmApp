@@ -108,6 +108,7 @@ describe("Film tests", () => {
             apikey: process.env.OMDB_API_KEY,
             t: "The Matrix",
           },
+          timeout: 5000,
         }
       );
     });
