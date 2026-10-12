@@ -1,30 +1,52 @@
-// 1. Force load of env variables
-require('dotenv').config(); 
+const path = require("path");
 const { Sequelize } = require("sequelize");
 
-if (!process.env.POSTGRES_URI) throw new Error("Missing env var: POSTGRES_URI");
+const environment = process.env.NODE_ENV || "development";
 
-// Export configurations by environments
-const dbConfig = {
-  url: process.env.NODE_ENV === "production" ? process.env.POSTGRES_URI : process.env.POSTGRESS_URI_TEST,
-  dialect: "postgres",
-  logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true, // ensure SSL conexión to Supabase
-      rejectUnauthorized: false,
-    },
-  },
+require("dotenv").config({
+  path: path.resolve(
+    process.cwd(),
+    environment === "test" ? ".env.test" : ".env"
+  ),
+});
+
+function createConfig(url, sslEnabled = false) {
+  return {
+    url,
+    dialect: "postgres",
+    logging: false,
+    ...(sslEnabled && {
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
+    }),
+  };
+}
+
+const sslEnabled = process.env.DB_SSL === "true";
+
+const configurations = {
+  development: createConfig(process.env.POSTGRES_URI, sslEnabled),
+  test: createConfig(process.env.POSTGRES_URI_TEST, false),
+  production: createConfig(process.env.POSTGRES_URI, sslEnabled),
 };
 
-// 3. Export config object (Sequelize CLI). Keep server instance
+const currentConfig = configurations[environment];
+
+if (!currentConfig?.url) {
+  const variable =
+    environment === "test" ? "POSTGRES_URI_TEST" : "POSTGRES_URI";
+
+  throw new Error(`Missing environment variable: ${variable}`);
+}
+
+const { url, ...sequelizeOptions } = currentConfig;
+
 module.exports = {
-  // CLI config (migrations)
-  test: dbConfig,
-  development: dbConfig,
-  production: dbConfig,
-  
-  // server sequelize instance
-  sequelize: new Sequelize(process.env.POSTGRES_URI, dbConfig)
+  ...configurations,
+  sequelize: new Sequelize(url, sequelizeOptions),
 };
 

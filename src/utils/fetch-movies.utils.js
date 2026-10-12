@@ -19,8 +19,7 @@ const fetchMovies = async (params = {}) => {
 
     return response.data;
   } catch (error) {
-    console.error("FETCH ERROR:", error);
-    res.status(500).json({ error: error.message });
+    throw new Error("OMDb request failed"); 
   }
 };
 

@@ -4,14 +4,27 @@
   "description": "film app",
   "main": "index.js",
   "scripts": {
-    "build": "npm ci && npm run db:migrate",
     "start": "node src/server.js",
-    "prestart": "npm run db:migrate",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "docs": "node docs/generate-openapi.js",
+    "dev": "node --watch src/server.js",
+    "test:db:up": "docker compose -f docker-compose.test.yml up -d --wait postgres-test mongo-test",
+    "test:db:down": "docker compose -f docker-compose.test.yml down -v --remove-orphans",
+    "test": "npm run test:docker",
+    "test:jest": "cross-env NODE_ENV=test jest --runInBand --verbose",
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:coverage": "cross-env NODE_ENV=test jest --runInBand --coverage",
+    "test:ci": "cross-env NODE_ENV=test jest --runInBand --coverage",
+    "test:integration": "npm run db:migrate:test && npm run test",
+    "test:docker": "docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test-runner",
+    "test:docker:clean": "docker compose -f docker-compose.test.yml down -v --remove-orphans",
+    "test:docker:fresh": "npm run test:docker:clean && npm run test:docker",
     "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:production": "cross-env NODE_ENV=production sequelize-cli db:migrate --env production",
+    "db:migrate:test": "cross-env NODE_ENV=test sequelize-cli db:migrate --env test",
     "db:migrate:undo": "sequelize-cli db:migrate:undo",
-    "db:migrate:status": "sequelize-cli db:migrate:status"
+    "db:migrate:test:undo": "cross-env NODE_ENV=test sequelize-cli db:migrate:undo --env test",
+    "db:migrate:test:reset": "cross-env NODE_ENV=test sequelize-cli db:migrate:undo:all --env test && npm run db:migrate:test",
+    "db:migrate:status": "sequelize-cli db:migrate:status",
+    "docs": "node docs/generate-openapi.js"
   },
   "repository": {
     "type": "git",
@@ -35,7 +48,7 @@
     "express-rate-limit": "^8.7.1",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.4.1",
+    "mongoose": "8.24.5",
     "morgan": "^1.10.1",
     "pg": "^8.20.0",
     "pg-hstore": "^2.3.4",
@@ -47,7 +60,10 @@
     "marked": "4.0.10"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
+    "jest": "^30.5.2",
     "postman-to-openapi": "^1.7.3",
-    "sequelize-cli": "^6.6.5"
+    "sequelize-cli": "^6.6.5",
+    "supertest": "^7.3.1"
   }
 }

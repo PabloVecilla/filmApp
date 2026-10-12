@@ -1,6 +1,6 @@
 // IMPORT
 // importar libreria dotenv para manejar archivos .env depending on environment
-require("dotenv").config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env.test" });
+require("dotenv").config({ path: process.env.NODE_ENV === "test" ? ".env.test" : ".env"});
 // importar servidor express (framework de node.js)
 const express = require("express");
 // importar morgan para console.log de las peticiones al servidor para facilitar el desarrollo y debugging
