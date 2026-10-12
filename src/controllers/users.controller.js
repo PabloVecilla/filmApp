@@ -31,9 +31,9 @@ const updateUser = async (req, res) => {
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    const rol = String(req.body.role) ?? user.role; 
+    const role = String(req.body.role) ?? user.role; 
 
-    await user.update(rol);
+    await user.update({ role });
     res
       .status(200)
       .json({ user: user, message: `User ${user.name} role edited.` });
