@@ -10,13 +10,19 @@ const loadFavorites = async () => {
   currentFavorites = await FavoritesAPI.getAll();
 };
 
+const showMessage = (message) => {
+  const paragraph = document.createElement("p");
+  paragraph.textContent = message;
+  filmDetail.replaceChildren(paragraph);
+};
+
 const loadMovie = async () => {
   try {
-    const res = await fetch(`/api/films?i=${movieId}`);
+    const res = await fetch(`/api/films?i=${encodeURIComponent(movieId)}`);
     const data = await res.json();
 
-    if (!res.ok || data.Reponse === "False" || !data.Search?.length) {
-      filmDetail.innerHTML = "<p>Película no encontrada</p>";
+    if (!res.ok || data.Response === "False" || !data.Search?.length) {
+      showMessage("Película no encontrada");
       return;
     }
 
@@ -27,8 +33,16 @@ const loadMovie = async () => {
     renderMovie();
   } catch (e) {
     console.error(e);
-    filmDetail.innerHTML = "<p>Error cargando la película</p>";
+    showMessage("Error cargando la película");
   }
+};
+
+const createMovieInfoRow = (label, value) => {
+  const paragraph = document.createElement("p");
+  const labelElement = document.createElement("strong");
+  labelElement.textContent = `${label}:`;
+  paragraph.append(labelElement, ` ${value || "No disponible"}`);
+  return paragraph;
 };
 
 const renderMovie = () => {
@@ -40,37 +54,44 @@ const renderMovie = () => {
 
   const isFavorite = Boolean(favorite);
 
-  filmDetail.innerHTML = `
-    <div class="film-detail">
-      <img 
-        class="movie-poster"
-        src="${getPoster(currentMovie.poster)}" 
-        alt="${currentMovie.title}"
-      >
-      
-      <div class="movie-info">
-        <h1>${currentMovie.title}</h1>
+  const detail = document.createElement("div");
+  detail.className = "film-detail";
 
-        <p><strong>Año:</strong> ${currentMovie.year || "No disponible"}</p>
-        <p><strong>Director:</strong> ${currentMovie.director || "No disponible"}</p>
-        <p><strong>Género:</strong> ${currentMovie.genre || "No disponible"}</p>
-        <p><strong>Duración:</strong> ${currentMovie.runtime || "No disponible"}</p>
-        <p><strong>Actores:</strong> ${currentMovie.actors || "No disponible"}</p>
-        <p><strong>Sinopsis:</strong> ${currentMovie.plot || "No disponible"}</p>
-        <p><strong>Rating:</strong> ${currentMovie.rating || "No disponible"}</p>
+  const poster = document.createElement("img");
+  poster.className = "movie-poster";
+  poster.src = getPoster(currentMovie.poster);
+  poster.alt = currentMovie.title ?? "";
 
-        <button 
-          class="btn favorite-btn"
-          data-movie-source="${currentMovie.movieSource}"
-          data-movie-source-id="${currentMovie.movieSourceId}"
-          data-favorite-id="${favorite ? favorite.favoriteId : ""}"
-          data-is-favorite="${isFavorite}"
-        > 
-          ${isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"} 
-        </button>
-      </div>
-    </div>
-  `;
+  const movieInfo = document.createElement("div");
+  movieInfo.className = "movie-info";
+
+  const title = document.createElement("h1");
+  title.textContent = currentMovie.title ?? "";
+
+  const favoriteButton = document.createElement("button");
+  favoriteButton.className = "btn favorite-btn";
+  favoriteButton.dataset.movieSource = currentMovie.movieSource ?? "";
+  favoriteButton.dataset.movieSourceId = currentMovie.movieSourceId ?? "";
+  favoriteButton.dataset.favoriteId = favorite?.favoriteId ?? "";
+  favoriteButton.dataset.isFavorite = String(isFavorite);
+  favoriteButton.textContent = isFavorite
+    ? "Quitar de favoritos"
+    : "Añadir a favoritos";
+
+  movieInfo.append(
+    title,
+    createMovieInfoRow("Año", currentMovie.year),
+    createMovieInfoRow("Director", currentMovie.director),
+    createMovieInfoRow("Género", currentMovie.genre),
+    createMovieInfoRow("Duración", currentMovie.runtime),
+    createMovieInfoRow("Actores", currentMovie.actors),
+    createMovieInfoRow("Sinopsis", currentMovie.plot),
+    createMovieInfoRow("Rating", currentMovie.rating),
+    favoriteButton,
+  );
+
+  detail.append(poster, movieInfo);
+  filmDetail.replaceChildren(detail);
 }; // ahora tenemos display dinámico del botón (añadir/quitar)
 
 const handleFavoriteClick = async (button) => {
