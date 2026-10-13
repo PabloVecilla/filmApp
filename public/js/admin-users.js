@@ -1,8 +1,8 @@
-// FUNCIONES ADMIN USERS EJS:
+// ADMIN USERS EJS FUNCTIONS:
 
-// editar usuario
+// edit user
 document.addEventListener("click", (e) => {
-  // EDITAR
+  // EDIT
   if (e.target.classList.contains("edit-btn")) {
     const btn = e.target;
     editUser(
@@ -13,7 +13,7 @@ document.addEventListener("click", (e) => {
     );
   }
 
-  // ELIMINAR
+  // DELETE
   if (e.target.classList.contains("delete-btn")) {
     deleteUser(e.target.dataset.id);
   }
@@ -26,29 +26,42 @@ const loadUsers = async () => {
   const list = document.getElementById("users-list");
 
   if (!users.length) {
-    list.innerHTML = "<p>No hay usuarios</p>";
+    const message = document.createElement("p");
+    message.textContent = "No hay usuarios";
+    list.replaceChildren(message);
     return;
   }
 
-  list.innerHTML = users
-    .map(
-      (user) => `
-      <div class="user-card">
-        <p><strong>${user.name}</strong> - ${user.email} - ${user.role}</p>
-        <button 
-          class="btn edit-btn"
-          data-id="${user.id}"
-          data-name="${user.name}"
-          data-email="${user.email}"
-          data-role="${user.role}"
-        >Editar</button>
-        <button class="btn delete-btn"
-        data-id="${user.id}"
-        >Eliminar</button>
-      </div>
-    `
-    )
-    .join("");
+  const cards = users.map((user) => {
+    const card = document.createElement("div");
+    card.className = "user-card";
+
+    const description = document.createElement("p");
+    const name = document.createElement("strong");
+    name.textContent = user.name ?? "";
+    description.append(
+      name,
+      ` - ${user.email ?? ""} - ${user.role ?? ""}`,
+    );
+
+    const editButton = document.createElement("button");
+    editButton.className = "btn edit-btn";
+    editButton.dataset.id = user.id ?? "";
+    editButton.dataset.name = user.name ?? "";
+    editButton.dataset.email = user.email ?? "";
+    editButton.dataset.role = user.role ?? "";
+    editButton.textContent = "Editar";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "btn delete-btn";
+    deleteButton.dataset.id = user.id ?? "";
+    deleteButton.textContent = "Eliminar";
+
+    card.append(description, editButton, deleteButton);
+    return card;
+  });
+
+  list.replaceChildren(...cards);
 };
 
 const editUser = async (id, name, email, role) => {

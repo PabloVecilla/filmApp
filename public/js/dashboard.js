@@ -20,38 +20,60 @@ const loadMovies = async () => {
   renderMovies(); 
 }; 
 
+const showMessage = (message) => {
+  const paragraph = document.createElement("p");
+  paragraph.textContent = message;
+  grid.replaceChildren(paragraph);
+};
+
 const renderMovies = () => {
   if (!currentMovies.length) {
-    grid.innerHTML = "<p>No hay películas disponibles</p>";
+    showMessage("No hay películas disponibles");
     return;
   }
 
-  grid.innerHTML = currentMovies
-    .map((movie) => {
-      const favorite = FavoritesAPI.findFavorite(
-        currentFavorites, 
-        movie.movieSource,
-        movie.movieSourceId,
-      ); 
-      const isFavorite = Boolean(favorite); 
+  const cards = currentMovies.map((movie) => {
+    const favorite = FavoritesAPI.findFavorite(
+      currentFavorites,
+      movie.movieSource,
+      movie.movieSourceId,
+    );
+    const isFavorite = Boolean(favorite);
 
-      return `
-      <div class="movie-card">
-        <img class="movie-poster" src="${getPoster(movie.poster)}" alt="${movie.title}">
-        <h3>${movie.title}</h3>
-        <p>${movie.year}</p>
-        <a href="/search/${movie.movieSourceId}" class="btn">Ver detalle</a>
-        <button class="btn favorite-btn" 
-          data-movie-source="${movie.movieSource}"
-          data-movie-source-id="${movie.movieSourceId}"
-          data-favorite-id="${favorite ? favorite.favoriteId : ""}"
-          data-is-favorite="${isFavorite}"
-        >${isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
-        </button>
-      </div>
-    `;
-    })
-    .join("");
+    const card = document.createElement("div");
+    card.className = "movie-card";
+
+    const poster = document.createElement("img");
+    poster.className = "movie-poster";
+    poster.src = getPoster(movie.poster);
+    poster.alt = movie.title ?? "";
+
+    const title = document.createElement("h3");
+    title.textContent = movie.title ?? "";
+
+    const year = document.createElement("p");
+    year.textContent = movie.year ?? "";
+
+    const detailLink = document.createElement("a");
+    detailLink.className = "btn";
+    detailLink.href = `/search/${encodeURIComponent(movie.movieSourceId ?? "")}`;
+    detailLink.textContent = "Ver detalle";
+
+    const favoriteButton = document.createElement("button");
+    favoriteButton.className = "btn favorite-btn";
+    favoriteButton.dataset.movieSource = movie.movieSource ?? "";
+    favoriteButton.dataset.movieSourceId = movie.movieSourceId ?? "";
+    favoriteButton.dataset.favoriteId = favorite?.favoriteId ?? "";
+    favoriteButton.dataset.isFavorite = String(isFavorite);
+    favoriteButton.textContent = isFavorite
+      ? "Quitar de favoritos"
+      : "Añadir a favoritos";
+
+    card.append(poster, title, year, detailLink, favoriteButton);
+    return card;
+  });
+
+  grid.replaceChildren(...cards);
 }; 
 
 const handleFavoriteClick = async (button) => {
@@ -93,7 +115,7 @@ const searchMovies = async () => {
   const movies = await res.json();
 
   if (!movies || !movies.Search || movies.Search.length === 0) {
-    grid.innerHTML = "<p>No hay resultados</p>";
+    showMessage("No hay resultados");
     return;
   }
 

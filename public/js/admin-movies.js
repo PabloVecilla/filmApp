@@ -1,30 +1,31 @@
-// FUNCIONES ADMIN MOVIES EJS:
-// Guardar
+// ADMIN MOVIES EJS FUNCTION:
+// Save
 const saveBtn = document.getElementById("saveBtn");
 if (saveBtn) {
   saveBtn.addEventListener("click", () => {
     saveMovie();
   });
-}
+}; 
 
-// Cancelar
+// Cancel
 const cancelBtn = document.getElementById("cancelBtn");
 if (cancelBtn) {
   cancelBtn.addEventListener("click", () => {
     hideForm();
   });
-}
+}; 
 
-// Crear nueva película
+// New film
 const createBtn = document.getElementById("createBtn");
 if (createBtn) {
   createBtn.addEventListener("click", () => {
     showForm();
   });
-}
-// editar película
+};
+
+// edit film
 document.addEventListener("click", (e) => {
-  // EDITAR
+  // EDIT
   if (e.target.classList.contains("editBtn")) {
     const btn = e.target;
     editMovie(
@@ -38,14 +39,14 @@ document.addEventListener("click", (e) => {
       btn.dataset.plot,
       btn.dataset.actors
     );
-  }
+  }; 
 
-  // ELIMINAR
+  // ELIMINATE
   if (e.target.classList.contains("deleteBtn")) {
     deleteMovie(e.target.dataset.id);
   }
 });
-// Mostrar formulario crear peli
+// Show create movie form
 const showForm = () => {
   document.getElementById("movie-form").style.display = "block";
   document.getElementById("form-title").textContent = "Nueva película";
@@ -59,12 +60,13 @@ const showForm = () => {
   document.getElementById("plot").value = "";
   document.getElementById("actors").value = "";
 };
-// Ocultar formulario crear peli
 
+// hide create movie form
 const hideForm = () => {
   document.getElementById("movie-form").style.display = "none";
 };
-// Cargar peliculas admin mongo
+
+// Load mongo movies
 const loadMovies = async () => {
   const res = await fetch("/api/films/admin");
   const movies = await res.json();
@@ -72,45 +74,51 @@ const loadMovies = async () => {
   const list = document.getElementById("movies-list");
 
   if (!movies.length) {
-    list.innerHTML = "<p>No hay películas</p>";
+    const message = document.createElement("p");
+    message.textContent = "No hay películas";
+    list.replaceChildren(message);
     return;
   }
 
-  list.innerHTML = movies
-    .map(
-      (movie) => `
-      <div class="movie-card">
-        <img src="${movie.poster}" alt="${movie.title}">
-        <h3>${movie.title}</h3>
-        <p>${movie.year} - ${movie.director}</p>
+  const cards = movies.map((movie) => {
+    const card = document.createElement("div");
+    card.className = "movie-card";
 
-        <button 
-          class="btn editBtn"
-          data-id="${movie._id}"
-          data-title="${movie.title}"
-          data-poster="${movie.poster}"
-          data-year="${movie.year}"
-          data-director="${movie.director}"
-          data-genre="${movie.genre}"
-          data-runtime="${movie.runtime}"
-          data-plot="${movie.plot}"
-          data-actors="${movie.actors}"
-        >
-          Editar
-        </button>
+    const poster = document.createElement("img");
+    poster.src = movie.poster || "/img/no-poster.png";
+    poster.alt = movie.title ?? "";
 
-        <button 
-          class="btn deleteBtn"
-          data-id="${movie._id}"
-        >
-          Eliminar
-        </button>
-      </div>
-    `,
-    )
-    .join("");
+    const title = document.createElement("h3");
+    title.textContent = movie.title ?? "";
+
+    const description = document.createElement("p");
+    description.textContent = `${movie.year ?? ""} - ${movie.director ?? ""}`;
+
+    const editButton = document.createElement("button");
+    editButton.className = "btn editBtn";
+    editButton.dataset.id = movie._id ?? "";
+    editButton.dataset.title = movie.title ?? "";
+    editButton.dataset.poster = movie.poster ?? "";
+    editButton.dataset.year = movie.year ?? "";
+    editButton.dataset.director = movie.director ?? "";
+    editButton.dataset.genre = movie.genre ?? "";
+    editButton.dataset.runtime = movie.runtime ?? "";
+    editButton.dataset.plot = movie.plot ?? "";
+    editButton.dataset.actors = movie.actors ?? "";
+    editButton.textContent = "Editar";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "btn deleteBtn";
+    deleteButton.dataset.id = movie._id ?? "";
+    deleteButton.textContent = "Eliminar";
+
+    card.append(poster, title, description, editButton, deleteButton);
+    return card;
+  });
+
+  list.replaceChildren(...cards);
 };
-// crear peli mongo
+// create mongo movie
 const saveMovie = async () => {
   const id = document.getElementById("movie-id").value;
   const body = {
@@ -138,7 +146,7 @@ const saveMovie = async () => {
   hideForm();
   loadMovies();
 };
-// edit peli mongo
+// edit mongo movie
 const editMovie = (
   id,
   title,
@@ -162,7 +170,7 @@ const editMovie = (
   document.getElementById("plot").value = plot;
   document.getElementById("actors").value = actors;
 };
-// borrar peli mongo
+// delete mongo movie
 const deleteMovie = async (id) => {
   if (!confirm("¿Segur@ que quieres eliminar esta película?")) return;
 

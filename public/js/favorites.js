@@ -9,45 +9,70 @@ const loadFavorites = async () => {
   renderFavoriteMovies(); 
 }
 
+const showMessage = (message) => {
+  const paragraph = document.createElement("p");
+  paragraph.textContent = message;
+  grid.replaceChildren(paragraph);
+};
+
+const createRemoveButton = (favorite) => {
+  const button = document.createElement("button");
+  button.className = "btn delete-favorite-btn";
+  button.dataset.favoriteId = favorite.favoriteId ?? "";
+  button.dataset.movieSource = favorite.movieSource ?? "";
+  button.dataset.movieSourceId = favorite.movieSourceId ?? "";
+  button.textContent = "Quitar de favoritos";
+  return button;
+};
+
 const renderFavoriteMovies = () => {
   if (!currentFavorites.length) {
-    grid.innerHTML = "<p>Tu lista de favoritos está vacía</p>";
+    showMessage("Tu lista de favoritos está vacía");
     return;
   }
 
-  grid.innerHTML = currentFavorites
-    .map((fav) => {
-      if (fav.unavailable) {
-        return `
-            <div class="movie-card">
-                <h3>Película no disponible</h3>
-                <p>Imposible cargar la información</p>
+  const cards = currentFavorites.map((favorite) => {
+    const card = document.createElement("div");
+    card.className = "movie-card";
 
-                <button class="btn delete-favorite-btn"
-                    data-favorite-id="${fav.favoriteId} 
-                    data-movie-source="omdb"
-                    data-movie-source-id="${fav.movieSourceId}"
-                    >Quitar de favoritos
-                </button>
-            </div>
-        `; 
-      }
-      return `
-      <div class="movie-card">
-        <img class="movie-poster" src="${getPoster(fav.poster)}" alt="${fav.title}">
-        <h3>${fav.title}</h3>
-        <p>${fav.year}</p>
-        <a href="/search/${fav.movieSourceId}" class="btn">Ver detalle</a>
-        <button class="btn delete-favorite-btn"
-          data-favorite-id="${fav.favoriteId}" 
-          data-movie-source="omdb"
-          data-movie-source-id="${fav.movieSourceId}"
-        >Quitar de favoritos
-        </button>
-      </div>
-    `;
-    })
-    .join("");
+    if (favorite.unavailable) {
+      const title = document.createElement("h3");
+      title.textContent = "Película no disponible";
+
+      const description = document.createElement("p");
+      description.textContent = "Imposible cargar la información";
+
+      card.append(title, description, createRemoveButton(favorite));
+      return card;
+    }
+
+    const poster = document.createElement("img");
+    poster.className = "movie-poster";
+    poster.src = getPoster(favorite.poster);
+    poster.alt = favorite.title ?? "";
+
+    const title = document.createElement("h3");
+    title.textContent = favorite.title ?? "";
+
+    const year = document.createElement("p");
+    year.textContent = favorite.year ?? "";
+
+    const detailLink = document.createElement("a");
+    detailLink.className = "btn";
+    detailLink.href = `/search/${encodeURIComponent(favorite.movieSourceId ?? "")}`;
+    detailLink.textContent = "Ver detalle";
+
+    card.append(
+      poster,
+      title,
+      year,
+      detailLink,
+      createRemoveButton(favorite),
+    );
+    return card;
+  });
+
+  grid.replaceChildren(...cards);
 }; 
 
 const handleFavoriteClick = async (button) => {
