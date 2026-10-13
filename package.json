@@ -4,6 +4,7 @@
   "description": "film app",
   "main": "index.js",
   "scripts": {
+    "deploy:prepare": "npm ci --include=dev && npm run db:migrate:production",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test:db:up": "docker compose -f docker-compose.test.yml up -d --wait postgres-test mongo-test",
