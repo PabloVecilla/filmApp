@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
 
 // Vista de inicio
 router.get("/home", (req, res) => {
-  res.render("index", { title: "Movie App Grupo 2", user: null, page: "home" });
+  res.render("index", { title: "Film App", user: null, page: "home" });
 });
 
 // Login
